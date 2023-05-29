@@ -1,0 +1,12 @@
+GET http://localhost:8000
+
+###
+
+POST http://localhost:8000/properties
+content-type: application/json
+
+{
+  "name": "toluene",
+  "T": 360,
+  "P": 200000
+}
