@@ -2,11 +2,35 @@ GET http://localhost:8000
 
 ###
 
-POST http://localhost:8000/properties
+POST http://localhost:8000/properties/pure
 content-type: application/json
 
 {
   "name": "toluene",
+  "T": -360,
+  "P": 200000
+}
+
+###
+
+POST http://localhost:8000/properties/mixture
+content-type: application/json
+
+{
+  "addprops": ["API", "dog", "cat"],
+  "basis": "volliq",
+  "comp": {
+    "methane": 1.96522, 
+    "nitrogen": 0.00259, 
+    "carbon dioxide": 0.00596, 
+    "ethane": 0.01819, 
+    "propane": 0.0046, 
+    "isobutane": 0.00098, 
+    "butane": 0.00101, 
+    "2-methylbutane": 0.00047, 
+    "pentane": 0.00032, 
+    "hexane": 0.00066
+  },
   "T": 360,
   "P": 200000
 }
