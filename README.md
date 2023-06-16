@@ -1,12 +1,11 @@
-# ChEDL-api
-API Implementation of Chemical Engineering Design Library (ChEDL)
-
+# ChEDL Microservice
 This project aims build a REST API Microservice to enable the use of ChEDL python library to languages outside python.
 
 ## API Documentation
-#### POST: `/properties/pure`
+### POST: `/properties/pure`
 Returns properties of pure components
 
+***Request Body***
 | key | type | description |
 |---|---|---|
 | name | str | valid component names |
@@ -25,9 +24,10 @@ content-type: application/json
   "P": 200000
 }
 ```
-#### POST: `/properties/mixture`
+### POST: `/properties/mixture`
 Returns properties of component mixture.
 
+***Request Body***
 | key | type | description |
 |---|---|---|
 | basis | * | * -> ['mole', 'mass', 'volgas', 'volliq'] |
