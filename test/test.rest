@@ -1,6 +1,6 @@
 GET http://localhost:8000
 
-###
+### PROPERTIES: Pure
 
 POST http://localhost:8000/properties/pure
 content-type: application/json
@@ -11,7 +11,7 @@ content-type: application/json
   "P": 200000
 }
 
-###
+### PROPERTIES: Mixture
 
 POST http://localhost:8000/properties/mixture
 content-type: application/json
@@ -33,4 +33,14 @@ content-type: application/json
   },
   "T": 360,
   "P": 200000
+}
+
+### PUMPS: VFD Efficiency
+
+POST http://localhost:8000/pumps/vfd_eff
+content-type: application/json
+
+{
+  "power": 10,
+  "load": 0.99
 }
