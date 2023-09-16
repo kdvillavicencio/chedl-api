@@ -34,3 +34,12 @@ content-type: application/json
   "T": 360,
   "P": 200000
 }
+
+###
+
+POST http://localhost:8000/pumps/vfd_eff
+content-type: application/json
+
+{
+  "power": 10
+}
