@@ -1,0 +1,10 @@
+[project]
+name = "chedl-api"
+version = "0.1.0"
+description = "REST API Microservice for ChEDL"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.12",
+    "thermo>=0.4.2",
+]

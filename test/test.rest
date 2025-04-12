@@ -1,7 +1,6 @@
 GET http://localhost:8000
 
-### PROPERTIES: Pure
-
+### PROPERTIES: Pure - Wrong Input (T)
 POST http://localhost:8000/properties/pure
 content-type: application/json
 
@@ -11,15 +10,37 @@ content-type: application/json
   "P": 200000
 }
 
-### PROPERTIES: Mixture
+### PROPERTIES: Pure - Wrong Input (Fluid Name)
+POST http://localhost:8000/properties/pure
+content-type: application/json
 
+{
+  "name": "cat",
+  "T": 360,
+  "P": 200000
+}
+
+### PROPERTIES: Pure - Wrong Input (Additional Prop)
+POST http://localhost:8000/properties/pure
+content-type: application/json
+
+{
+  "name": "toluene",
+  "T": [360, 200, 4],
+  "P": 200000,
+  "addprops": ["Tc", "Pc", "apple"]
+}
+
+### PROPERTIES: Mixture - OK
 POST http://localhost:8000/properties/mixture
 content-type: application/json
 
 {
+  "T": [360, 500, 3],
+  "P": 200000,
   "addprops": ["API", "dog", "cat"],
   "basis": "volliq",
-  "comp": {
+  "composition": {
     "methane": 1.96522, 
     "nitrogen": 0.00259, 
     "carbon dioxide": 0.00596, 
@@ -30,9 +51,37 @@ content-type: application/json
     "2-methylbutane": 0.00047, 
     "pentane": 0.00032, 
     "hexane": 0.00066
-  },
-  "T": 360,
-  "P": 200000
+  }
+}
+
+### PROPERTIES: Mixture - Invalid composition
+POST http://localhost:8000/properties/mixture
+content-type: application/json
+
+{
+  "T": [360, 500, 3],
+  "P": 200000,
+  "addprops": ["API", "dog", "cat"],
+  "basis": "volliq",
+  "composition": {
+    "methane": -1.96522, 
+    "nitrogen": 0.00259
+  }
+}
+
+### PROPERTIES: Mixture - Invalid fluid
+POST http://localhost:8000/properties/mixture
+content-type: application/json
+
+{
+  "T": [360, 500, 3],
+  "P": 200000,
+  "addprops": ["API", "dog", "cat"],
+  "basis": "volliq",
+  "composition": {
+    "asparagus": 1.96522, 
+    "nitrogen": 0.00259
+  }
 }
 
 ### PUMPS: VFD Efficiency

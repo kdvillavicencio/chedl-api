@@ -1,24 +1,25 @@
-from fastapi import APIRouter
-from typing import Literal
-from pydantic import BaseModel, validator, root_validator
+from fastapi import APIRouter, HTTPException
+# from typing import Literal, List
+from typing import Literal, List, Union, Tuple, Dict
+from pydantic import BaseModel, PositiveFloat, PositiveInt
 from thermo import Chemical, Mixture
 
 import app.utils.utilities as utils
-from app.utils.validators import check_positive
+
+P_default = 101325  # in Pa (abs)
+T_default = 298.15  # in K
 
 class BaseConditions(BaseModel):
-    T = 298.15  # in K
-    P = 101325  # in Pa (abs)
-    addprops = []
-
-    positive = validator('P', 'T', allow_reuse=True)(check_positive)
+    P: Union[Tuple[PositiveFloat, PositiveFloat, PositiveInt], PositiveFloat] = P_default
+    T: Union[Tuple[PositiveFloat, PositiveFloat, PositiveInt], PositiveFloat] = T_default
+    addprops: List[str|None] = []
 
 class PureComponent(BaseConditions):
     name: str
 
 class MixedComponent(BaseConditions):
     basis: Literal['mole', 'mass', 'volgas', 'volliq']
-    comp: dict
+    composition: Dict[str, PositiveFloat]
 
 
 router = APIRouter(
@@ -37,13 +38,31 @@ async def get_properties_pure(fluid: PureComponent):
 
     """
     response_body = {}
+    properties = []
     warnings = []
-
-    pure = Chemical(ID=fluid.name, T=fluid.T, P=fluid.P)
-    response_body['properties'] = utils.get_properties(dir(Chemical), pure, fluid.addprops, warnings)
+        
+    # check if fluid exists
+    try:
+        pure = Chemical(ID=fluid.name, T=T_default, P=P_default)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
     
+    # initial property check
+    prop_list = utils.get_prop_list(pure, fluid.addprops, warnings)
+    
+    # create data space
+    design_space = utils.get_design_space(fluid.P, fluid.T)
+
+    # run property estimate
+    for (p,t) in design_space:
+        pure = Chemical(ID=fluid.name, T=t, P=p)
+        prop_data = utils.get_prop_data(pure, prop_list, warnings)
+        properties.append(prop_data)        
+
     if len(warnings) > 0:
         response_body['warnings'] = warnings
+        
+    response_body['properties'] = properties
     
     return response_body
 
@@ -55,19 +74,37 @@ async def get_properties_mixture(fluid: MixedComponent):
 
     """
     response_body = {}
+    properties = []
     warnings = []
 
     comp_dict = {
-        "mole": fluid.comp if fluid.basis == 'mole' else None,
-        "mass": fluid.comp if fluid.basis == 'mass' else None,
-        "volgas": fluid.comp if fluid.basis == 'volgas' else None,
-        "volliq": fluid.comp if fluid.basis == 'volliq' else None
+        "mole": fluid.composition if fluid.basis == 'mole' else None,
+        "mass": fluid.composition if fluid.basis == 'mass' else None,
+        "volgas": fluid.composition if fluid.basis == 'volgas' else None,
+        "volliq": fluid.composition if fluid.basis == 'volliq' else None
     }
 
-    mixture = Mixture(ws=comp_dict["mass"], zs=comp_dict["mole"], Vfgs=comp_dict["volgas"], Vfls=comp_dict["volliq"], T=fluid.T, P=fluid.P)
-    response_body['properties'] = utils.get_properties(dir(Mixture), mixture, fluid.addprops, warnings)
+    # check if fluid exists
+    try:
+        mixture = Mixture(ws=comp_dict["mass"], zs=comp_dict["mole"], Vfgs=comp_dict["volgas"], Vfls=comp_dict["volliq"], T=T_default, P=P_default)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
     
+    # initial property check
+    prop_list = utils.get_prop_list(mixture, fluid.addprops, warnings)
+    
+    # create data space
+    design_space = utils.get_design_space(fluid.P, fluid.T)
+
+    # run property estimate
+    for (p, t) in design_space:
+        mixture = Mixture(ws=comp_dict["mass"], zs=comp_dict["mole"], Vfgs=comp_dict["volgas"], Vfls=comp_dict["volliq"], T=t, P=p)
+        prop_data = utils.get_prop_data(mixture, prop_list, warnings)
+        properties.append(prop_data)        
+
     if len(warnings) > 0:
         response_body['warnings'] = warnings
+
+    response_body['properties'] = properties
 
     return response_body

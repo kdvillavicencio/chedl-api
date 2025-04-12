@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from typing import Literal
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, PositiveFloat, field_validator
 from fluids import VFD_efficiency
 
 from app.utils.validators import check_positive, check_normalized
@@ -8,12 +8,17 @@ from app.utils.validators import check_positive, check_normalized
 # DOCS: https://fluids.readthedocs.io/index.html
 
 class VFDData(BaseModel):
-    power: int  # in W
+    power: PositiveFloat  # in W
     load: int = 1  # dimensionless
 
-    positive = validator('power', allow_reuse=True)(check_positive)
-    normalized = validator('load', allow_reuse=True)(check_normalized)    
+    # positive = validator('power', allow_reuse=True)(check_positive)
+    # normalized = validator('load', allow_reuse=True)(check_normalized)    
     
+    @field_validator('load')
+    def check_normalized(cls, v):
+        if v < 0 or v > 1:
+            raise ValueError(f"Load should be between 0 and 1.")
+        return v
 
 router = APIRouter(
     prefix="/pumps"
