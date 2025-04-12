@@ -5,7 +5,6 @@ from pydantic import BaseModel, PositiveFloat, PositiveInt
 from thermo import Chemical, Mixture
 
 import app.utils.utilities as utils
-from app.utils.validators import check_positive
 
 P_default = 101325  # in Pa (abs)
 T_default = 298.15  # in K
@@ -13,11 +12,7 @@ T_default = 298.15  # in K
 class BaseConditions(BaseModel):
     P: Union[Tuple[PositiveFloat, PositiveFloat, PositiveInt], PositiveFloat] = P_default
     T: Union[Tuple[PositiveFloat, PositiveFloat, PositiveInt], PositiveFloat] = T_default
-    # T: PositiveFloat = 298.15  # in K
-    # P: PositiveFloat = 101325  # in Pa (abs)
     addprops: List[str|None] = []
-
-    # positive = validator('P', 'T', allow_reuse=True)(check_positive)
 
 class PureComponent(BaseConditions):
     name: str
@@ -64,8 +59,6 @@ async def get_properties_pure(fluid: PureComponent):
         prop_data = utils.get_prop_data(pure, prop_list, warnings)
         properties.append(prop_data)        
 
-    # response_body['properties'] = utils.get_properties(pure, fluid.addprops, warnings)
-
     if len(warnings) > 0:
         response_body['warnings'] = warnings
         
@@ -109,9 +102,6 @@ async def get_properties_mixture(fluid: MixedComponent):
         prop_data = utils.get_prop_data(mixture, prop_list, warnings)
         properties.append(prop_data)        
 
-    # mixture = Mixture(ws=comp_dict["mass"], zs=comp_dict["mole"], Vfgs=comp_dict["volgas"], Vfls=comp_dict["volliq"], T=fluid.T, P=fluid.P)
-    # response_body['properties'] = utils.get_prop_data(mixture, fluid.addprops, warnings)
-    
     if len(warnings) > 0:
         response_body['warnings'] = warnings
 
