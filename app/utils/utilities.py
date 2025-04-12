@@ -10,7 +10,7 @@ def normalize(comp: dict):
 def get_design_space(p, t) -> List[Tuple[float, float]]:
     if isinstance(p, tuple):    
         plist = linspace(p[0], p[1], p[2])
-    elif isinstance(a, float|int):
+    elif isinstance(p, float|int):
         plist = [p]
     else:
         return 'Error'
@@ -36,10 +36,9 @@ def get_prop_list(fluid, addprops, warnings):
 
     return props
 
-def get_properties(fluid, addprops, warnings):
-    print(fluid)
+def get_prop_data(fluid, addprops, warnings):
     properties = {}
-    DEFAULT_PROPS = ['rho', 'mu', 'Cp']
+    DEFAULT_PROPS = ['T', 'P', 'rho', 'mu', 'Cp']
 
     for prop in DEFAULT_PROPS:
         properties[prop] = getattr(fluid, prop)
