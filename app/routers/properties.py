@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from typing import Literal
+from typing import Literal, List
 # from typing import Literal, Union, Tuple
-from pydantic import BaseModel, validator, root_validator
+from pydantic import BaseModel, PositiveFloat
 from thermo import Chemical, Mixture
 
 import app.utils.utilities as utils
@@ -13,11 +13,11 @@ T_default = 298.15  # in K
 class BaseConditions(BaseModel):
     # P: Union[Tuple[float|int, float|int, int], float|int] = P_default
     # T: Union[Tuple[float|int, float|int, int], float|int] = T_default
-    T = 298.15  # in K
-    P = 101325  # in Pa (abs)
-    addprops = []
+    T: PositiveFloat = 298.15  # in K
+    P: PositiveFloat = 101325  # in Pa (abs)
+    addprops: List[str|None] = []
 
-    positive = validator('P', 'T', allow_reuse=True)(check_positive)
+    # positive = validator('P', 'T', allow_reuse=True)(check_positive)
 
 class PureComponent(BaseConditions):
     name: str
