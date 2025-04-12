@@ -1,12 +1,18 @@
 from fastapi import APIRouter
 from typing import Literal
+# from typing import Literal, Union, Tuple
 from pydantic import BaseModel, validator, root_validator
 from thermo import Chemical, Mixture
 
 import app.utils.utilities as utils
 from app.utils.validators import check_positive
 
+P_default = 101325  # in Pa (abs)
+T_default = 298.15  # in K
+
 class BaseConditions(BaseModel):
+    # P: Union[Tuple[float|int, float|int, int], float|int] = P_default
+    # T: Union[Tuple[float|int, float|int, int], float|int] = T_default
     T = 298.15  # in K
     P = 101325  # in Pa (abs)
     addprops = []
@@ -39,8 +45,17 @@ async def get_properties_pure(fluid: PureComponent):
     response_body = {}
     warnings = []
 
+    # check if fluid exists
+    # try:
+    #     pure = Chemical(ID=fluid.name, T=fluid.T, P=fluid.P)
+    # except:
+    #     return 'Error'
+    # initial property check
+
+    # create data space
+    # fetch data
     pure = Chemical(ID=fluid.name, T=fluid.T, P=fluid.P)
-    response_body['properties'] = utils.get_properties(dir(Chemical), pure, fluid.addprops, warnings)
+    response_body['properties'] = utils.get_properties(pure, fluid.addprops, warnings)
     
     if len(warnings) > 0:
         response_body['warnings'] = warnings
@@ -65,7 +80,7 @@ async def get_properties_mixture(fluid: MixedComponent):
     }
 
     mixture = Mixture(ws=comp_dict["mass"], zs=comp_dict["mole"], Vfgs=comp_dict["volgas"], Vfls=comp_dict["volliq"], T=fluid.T, P=fluid.P)
-    response_body['properties'] = utils.get_properties(dir(Mixture), mixture, fluid.addprops, warnings)
+    response_body['properties'] = utils.get_properties(mixture, fluid.addprops, warnings)
     
     if len(warnings) > 0:
         response_body['warnings'] = warnings
