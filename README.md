@@ -55,9 +55,11 @@ POST http://localhost:8000/properties/mixture
 content-type: application/json
 
 {
+  "T": 360,
+  "P": 200000,
   "addprops": ["SG"],
   "basis": "volliq",
-  "comp": {
+  "composition": {
     "methane": 1.96522, 
     "nitrogen": 0.00259, 
     "carbon dioxide": 0.00596, 
@@ -68,9 +70,7 @@ content-type: application/json
     "2-methylbutane": 0.00047, 
     "pentane": 0.00032, 
     "hexane": 0.00066
-  },
-  "T": 360,
-  "P": 200000
+  }
 }
 ```
 
