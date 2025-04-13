@@ -3,8 +3,6 @@ from typing import Literal
 from pydantic import BaseModel, PositiveFloat, field_validator
 from fluids import VFD_efficiency
 
-from app.utils.validators import check_positive, check_normalized
-
 # DOCS: https://fluids.readthedocs.io/index.html
 
 class VFDData(BaseModel):
